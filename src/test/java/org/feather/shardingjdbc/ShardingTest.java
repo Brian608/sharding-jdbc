@@ -3,6 +3,7 @@ package org.feather.shardingjdbc;
 import org.feather.shardingjdbc.dao.OrderMapper;
 import org.feather.shardingjdbc.model.Order;
 
+import org.feather.shardingjdbc.model.OrderExample;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,6 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @projectName: sharding-jdbc
@@ -33,10 +35,19 @@ public class ShardingTest {
    @Test
     public  void  testInsertOrder(){
         Order order=new Order();
-        order.setUserId(19);
-        order.setId(1);
+        order.setUserId(20);
+        order.setId(4);
         order.setOrderAmount(BigDecimal.TEN);
         order.setOrderStatus(1);
         orderMapper.insert(order);
+    }
+
+    @Test
+    public void testSelectOrder(){
+        OrderExample orderExample = new OrderExample();
+        orderExample.createCriteria().andIdEqualTo(4)
+                .andUserIdEqualTo(20);
+        List<Order> orders = orderMapper.selectByExample(orderExample);
+        orders.forEach(o-> System.out.println(o.getId()+"----"+o.getUserId()));
     }
 }
