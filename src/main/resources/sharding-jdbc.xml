@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:sharding="http://shardingsphere.apache.org/schema/shardingsphere/sharding"
+       xmlns:master-slave="http://shardingsphere.apache.org/schema/shardingsphere/masterslave"
+       xmlns:bean="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://shardingsphere.apache.org/schema/shardingsphere/sharding
+                        http://shardingsphere.apache.org/schema/shardingsphere/sharding/sharding.xsd
+                        http://shardingsphere.apache.org/schema/shardingsphere/masterslave
+                        http://shardingsphere.apache.org/schema/shardingsphere/masterslave/master-slave.xsd
+                        http://www.springframework.org/schema/context
+                        http://www.springframework.org/schema/context/spring-context.xsd
+                        http://www.springframework.org/schema/tx
+                        http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd">
+    <bean id="ds0" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />
+        <property name="username" value="root" />
+        <property name="password" value="root" />
+        <property name="jdbcUrl" value="jdbc:mysql://localhost/sharding_order?serverTimezone=Asia/Shanghai&amp;useSSL=false"/>
+    </bean>
+    <bean id="ds1" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />
+        <property name="username" value="train" />
+        <property name="password" value="train" />
+        <property name="jdbcUrl" value="jdbc:mysql://localhost/shard_order?serverTimezone=Asia/Shanghai&amp;useSSL=false"/>
+    </bean>
+
+    <sharding:data-source id="sharding-data-source">
+        <sharding:sharding-rule data-source-names="ds0,ds1">
+            <sharding:table-rules>
+                <sharding:table-rule logic-table="t_order" actual-data-nodes="ms$->{0..1}.t_order_$->{1..2}"
+                                     database-strategy-ref="databaseStrategy" table-strategy-ref="standard"
+                                     key-generator-ref="snowflake"
+                />
+            </sharding:table-rules>
+        </sharding:sharding-rule>
+    </sharding:data-source>
+
+    <sharding:key-generator id="snowflake" column="order_id" type="SNOWFLAKE" props-ref="snow"/>
+
+
+    <sharding:inline-strategy id="databaseStrategy" sharding-column="user_id"
+                              algorithm-expression="ms$->{user_id % 2}" />
+
+    <sharding:inline-strategy id="tableStrategy" sharding-column="order_id"
+                              algorithm-expression="t_order$->{order_id % 2 +1}" />
+
+
+    <bean class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="sharding-data-source"/>
+        <property name="mapperLocations" value="classpath*:/mybatis/*.xml"/>
+    </bean>
+
+</beans>
