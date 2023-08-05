@@ -45,8 +45,8 @@ public class ShardingTest {
     @Test
     public void testSelectOrder(){
         OrderExample orderExample = new OrderExample();
-        orderExample.createCriteria().andIdEqualTo(4)
-                .andUserIdEqualTo(20);
+        orderExample.createCriteria().andIdEqualTo(1)
+                .andUserIdEqualTo(19);
         List<Order> orders = orderMapper.selectByExample(orderExample);
         orders.forEach(o-> System.out.println(o.getId()+"----"+o.getUserId()));
     }
