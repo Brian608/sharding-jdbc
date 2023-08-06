@@ -33,6 +33,9 @@
                                      database-strategy-ref="databaseStrategy" table-strategy-ref="tableStrategy"
                 />
             </sharding:table-rules>
+            <sharding:broadcast-table-rules>
+                <sharding:broadcast-table-rule table="area"/>
+            </sharding:broadcast-table-rules>
         </sharding:sharding-rule>
     </sharding:data-source>
 

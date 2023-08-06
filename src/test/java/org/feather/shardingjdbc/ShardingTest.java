@@ -1,6 +1,9 @@
 package org.feather.shardingjdbc;
 
+import org.feather.shardingjdbc.dao.AreaMapper;
 import org.feather.shardingjdbc.dao.OrderMapper;
+import org.feather.shardingjdbc.model.Area;
+import org.feather.shardingjdbc.model.AreaExample;
 import org.feather.shardingjdbc.model.Order;
 
 import org.feather.shardingjdbc.model.OrderExample;
@@ -28,6 +31,9 @@ public class ShardingTest {
     @Resource
     private OrderMapper orderMapper;
 
+    @Resource
+    private AreaMapper areaMapper;
+
     @Test
     public  void contextLoads() {
     }
@@ -49,5 +55,24 @@ public class ShardingTest {
                 .andUserIdEqualTo(19);
         List<Order> orders = orderMapper.selectByExample(orderExample);
         orders.forEach(o-> System.out.println(o.getId()+"----"+o.getUserId()));
+    }
+
+
+    @Test
+    public  void  getGolbal(){
+        Area area=new Area();
+        area.setId(2);
+        area.setName("上海");
+        areaMapper.insert(area);
+    }
+
+
+    @Test
+    public  void  selectGlobal(){
+        AreaExample areaExample=new AreaExample();
+        areaExample.createCriteria().andIdEqualTo(2);
+        List<Area> areaList = areaMapper.selectByExample(areaExample);
+        areaList.forEach(System.out::println);
+
     }
 }
